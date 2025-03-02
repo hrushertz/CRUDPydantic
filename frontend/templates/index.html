@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Post Management</title>
+</head>
+<body>
+    <h2>Create a New Post</h2>
+    <form action="http://127.0.0.1:8000/posts/" method="post" enctype="multipart/form-data">
+        <label for="username">Username:</label>
+        <input type="text" name="username" required><br><br>
+
+        <label for="postID">Post ID:</label>
+        <input type="text" name="postID" required><br><br>
+
+        <label for="caption">Caption:</label>
+        <input type="text" name="caption" required><br><br>
+
+        <label for="mediaType">Media Type:</label>
+        <input type="text" name="mediaType" required><br><br>
+
+        <label for="hashtags">Hashtags:</label>
+        <input type="text" name="hashtags" required><br><br>
+
+        <label for="location">Location:</label>
+        <input type="text" name="location" required><br><br>
+
+        <label for="tagged_users">Tagged Users:</label>
+        <input type="text" name="tagged_users" required><br><br>
+
+        <label for="system_date_time">System Date and Time:</label>
+        <input type="text" name="system_date_time" required><br><br>
+
+        <label for="isSponsered">Is Sponsored:</label>
+        <input type="text" name="isSponsered" required><br><br>
+
+        <label for="platform_Name">Platform Name:</label>
+        <input type="text" name="platform_Name" required><br><br>
+
+        <label for="mediaFile">Upload Media:</label>
+        <input type="file" name="mediaFile"><br><br>
+
+        <button type="submit">Create Post</button>
+    </form>
+
+    <h2>Update a Post</h2>
+    <form id="updateForm">
+        <label for="updatePostID">Post ID:</label>
+        <input type="text" id="updatePostID" required><br><br>
+
+        <label for="updateCaption">Caption:</label>
+        <input type="text" id="updateCaption"><br><br>
+
+        <button type="button" onclick="updatePost()">Update Post</button>
+    </form>
+
+    <h2>Delete a Post</h2>
+    <form id="deleteForm">
+        <label for="deletePostID">Post ID:</label>
+        <input type="text" id="deletePostID" required><br><br>
+
+        <button type="button" onclick="deletePost()">Delete Post</button>
+    </form>
+
+    <h2>View All Posts</h2>
+    <form action="http://127.0.0.1:8000/posts/" method="get">
+        <button type="submit">View Posts</button>
+    </form>
+
+    <script>
+    async function updatePost() {
+        let postID = document.getElementById("updatePostID").value;
+        let caption = document.getElementById("updateCaption").value;
+
+        if (!postID) {
+            alert("Post ID is required to update a post!");
+            return;
+        }
+
+        let response = await fetch(`http://127.0.0.1:8000/posts/${postID}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `caption=${caption}`
+        });
+
+        let data = await response.json();
+        alert(data.message || data.detail);
+    }
+
+    async function deletePost() {
+        let postID = document.getElementById("deletePostID").value;
+
+        if (!postID) {
+            alert("Post ID is required to delete a post!");
+            return;
+        }
+
+        let response = await fetch(`http://127.0.0.1:8000/posts/${postID}`, {
+            method: "DELETE"
+        });
+
+        let data = await response.json();
+        alert(data.message || data.detail);
+    }
+    </script>
+
+</body>
+</html>
