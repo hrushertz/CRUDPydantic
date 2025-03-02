@@ -7,45 +7,45 @@
 </head>
 <body>
     <h2>Create a New Post</h2>
-    <form action="http://127.0.0.1:8000/posts/" method="post" enctype="multipart/form-data">
+    <form id="createPostForm" enctype="multipart/form-data">
         <label for="username">Username:</label>
-        <input type="text" name="username" required><br><br>
+        <input type="text" id="username" required><br><br>
 
         <label for="postID">Post ID:</label>
-        <input type="text" name="postID" required><br><br>
+        <input type="text" id="postID" required><br><br>
 
         <label for="caption">Caption:</label>
-        <input type="text" name="caption" required><br><br>
+        <input type="text" id="caption" required><br><br>
 
         <label for="mediaType">Media Type:</label>
-        <input type="text" name="mediaType" required><br><br>
+        <input type="text" id="mediaType" required><br><br>
 
         <label for="hashtags">Hashtags:</label>
-        <input type="text" name="hashtags" required><br><br>
+        <input type="text" id="hashtags" required><br><br>
 
         <label for="location">Location:</label>
-        <input type="text" name="location" required><br><br>
+        <input type="text" id="location" required><br><br>
 
         <label for="tagged_users">Tagged Users:</label>
-        <input type="text" name="tagged_users" required><br><br>
+        <input type="text" id="tagged_users" required><br><br>
 
         <label for="system_date_time">System Date and Time:</label>
-        <input type="text" name="system_date_time" required><br><br>
+        <input type="text" id="system_date_time" required><br><br>
 
         <label for="isSponsered">Is Sponsored:</label>
-        <input type="text" name="isSponsered" required><br><br>
+        <input type="text" id="isSponsered" required><br><br>
 
         <label for="platform_Name">Platform Name:</label>
-        <input type="text" name="platform_Name" required><br><br>
+        <input type="text" id="platform_Name" required><br><br>
 
         <label for="mediaFile">Upload Media:</label>
-        <input type="file" name="mediaFile"><br><br>
+        <input type="file" id="mediaFile"><br><br>
 
-        <button type="submit">Create Post</button>
+        <button type="button" onclick="createPost()">Create Post</button>
     </form>
 
     <h2>Update a Post</h2>
-    <form id="updateForm">
+    <form id="updatePostForm">
         <label for="updatePostID">Post ID:</label>
         <input type="text" id="updatePostID" required><br><br>
 
@@ -56,7 +56,7 @@
     </form>
 
     <h2>Delete a Post</h2>
-    <form id="deleteForm">
+    <form id="deletePostForm">
         <label for="deletePostID">Post ID:</label>
         <input type="text" id="deletePostID" required><br><br>
 
@@ -64,24 +64,44 @@
     </form>
 
     <h2>View All Posts</h2>
-    <form action="http://127.0.0.1:8000/posts/" method="get">
-        <button type="submit">View Posts</button>
-    </form>
+    <button onclick="viewPosts()">View Posts</button>
+
+    <div id="postList"></div>
 
     <script>
+    async function createPost() {
+        let formData = new FormData();
+        formData.append("username", document.getElementById("username").value);
+        formData.append("postID", document.getElementById("postID").value);
+        formData.append("caption", document.getElementById("caption").value);
+        formData.append("mediaType", document.getElementById("mediaType").value);
+        formData.append("hashtags", document.getElementById("hashtags").value);
+        formData.append("location", document.getElementById("location").value);
+        formData.append("tagged_users", document.getElementById("tagged_users").value);
+        formData.append("system_date_time", document.getElementById("system_date_time").value);
+        formData.append("isSponsered", document.getElementById("isSponsered").value);
+        formData.append("platform_Name", document.getElementById("platform_Name").value);
+        formData.append("mediaFile", document.getElementById("mediaFile").files[0]);
+
+        let response = await fetch("http://127.0.0.1:8000/posts/", {
+            method: "POST",
+            body: formData
+        });
+
+        let data = await response.json();
+        alert(data.message || data.detail);
+    }
+
     async function updatePost() {
         let postID = document.getElementById("updatePostID").value;
-        let caption = document.getElementById("updateCaption").value;
-
-        if (!postID) {
-            alert("Post ID is required to update a post!");
-            return;
-        }
+        let updateData = {
+            caption: document.getElementById("updateCaption").value || null
+        };
 
         let response = await fetch(`http://127.0.0.1:8000/posts/${postID}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `caption=${caption}`
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updateData)
         });
 
         let data = await response.json();
@@ -91,17 +111,23 @@
     async function deletePost() {
         let postID = document.getElementById("deletePostID").value;
 
-        if (!postID) {
-            alert("Post ID is required to delete a post!");
-            return;
-        }
-
         let response = await fetch(`http://127.0.0.1:8000/posts/${postID}`, {
             method: "DELETE"
         });
 
         let data = await response.json();
         alert(data.message || data.detail);
+    }
+
+    async function viewPosts() {
+        let response = await fetch("http://127.0.0.1:8000/posts/");
+        let posts = await response.json();
+
+        let postListDiv = document.getElementById("postList");
+        postListDiv.innerHTML = "<h3>All Posts:</h3>";
+        posts.forEach(post => {
+            postListDiv.innerHTML += `<p><strong>${post.postID}:</strong> ${post.caption}</p>`;
+        });
     }
     </script>
 
